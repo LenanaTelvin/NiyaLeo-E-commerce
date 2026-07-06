@@ -23,6 +23,14 @@ class Settings(BaseSettings):
     # Stripe
     STRIPE_SECRET_KEY:Optional[str] = None
     STRIPE_WEBHOOK_SECRET:Optional[str] = None
+
+    # M-Pesa
+    MPESA_CONSUMER_KEY: Optional[str] = None
+    MPESA_CONSUMER_SECRET: Optional[str] = None
+    MPESA_SHORTCODE:str = "174379"
+    MPESA_PASSKEY: Optional[str] = None
+    MPESA_ENV:str = "sandbox"  
+    MPESA_CALLBACK_URL: Optional[str] = None
     
     # AWS S3
     AWS_ACCESS_KEY_ID: Optional[str] = None
@@ -39,5 +47,12 @@ class Settings(BaseSettings):
     class Config:
         env_file = str(Path(__file__).parent.parent.parent / ".env")
         case_sensitive = True
+
+    @property
+    def async_database_url(self) -> str:
+        url = self.DATABASE_URL
+        if url.startswith("postgresql://"):
+           url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
+        return url
 
 settings = Settings()

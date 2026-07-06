@@ -4,7 +4,7 @@ from .config import settings
 
 # Use async PostgreSQL
 engine = create_async_engine(
-    settings.DATABASE_URL,
+    settings.async_database_url,
     echo=settings.DEBUG,
     pool_size=20,
     max_overflow=10,
