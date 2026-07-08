@@ -2,6 +2,7 @@
 import asyncio
 from logging.config import fileConfig
 
+
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
@@ -13,7 +14,12 @@ import sys
 from pathlib import Path
 
 # Add the src directory to Python path
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+SRC_ROOT = PROJECT_ROOT / "src"
+
+for path in [PROJECT_ROOT, SRC_ROOT]:
+    if path.exists() and str(path) not in sys.path:
+        sys.path.insert(0,str(path))
 
 # Import all your models so Alembic can detect them
 from core.database import Base
@@ -35,6 +41,10 @@ from modules.products.models import ( # noqa: F401
     Tag, Product, ProductVariant,
     ProductMedia, InventoryLog
 )
+from modules.cart.models import Cart, CartItem, CartStatus  # noqa: F401 — confirm exact class names
+from modules.reviews.models import Review, ReviewReply  # noqa: F401 — confirm exact class names
+from modules.orders.models import Order, SellerOrder, SellerOrderItem, OrderStatusHistory  # noqa: F401
+from modules.payments.models import Payment  # noqa: F401
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

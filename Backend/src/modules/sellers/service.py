@@ -64,8 +64,6 @@ async def create_seller_profile(
     
     db.add(seller_profile)
     
-    if user.role != UserRole.ADMIN:
-        user.role = UserRole.SELLER
     
     await db.commit()
     await db.refresh(seller_profile)

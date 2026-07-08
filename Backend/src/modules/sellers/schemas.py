@@ -74,7 +74,7 @@ class SellerProfileResponse(SellerProfileBase):
     is_verified: bool
     custom_commission_rate: Optional[float]
     created_at: datetime
-    updated_at: datetime
+    updated_at: Optional[datetime]= None
     approved_at: Optional[datetime]
     suspended_at: Optional[datetime]
     suspension_reason: Optional[str]
