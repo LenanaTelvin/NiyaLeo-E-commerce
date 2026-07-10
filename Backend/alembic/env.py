@@ -20,6 +20,17 @@ SRC_ROOT = PROJECT_ROOT / "src"
 for path in [PROJECT_ROOT, SRC_ROOT]:
     if path.exists() and str(path) not in sys.path:
         sys.path.insert(0,str(path))
+        
+config = context.config
+
+import os
+db_url = os.getenv("DATABASE_URL")
+if db_url:
+    config.set_main_option("sqlalchemy.url", db_url.replace("%", "%%"))  # Escape % for configparser
+
+# Interpret the config file for Python logging.
+if config.config_file_name is not None:
+    fileConfig(config.config_file_name)  
 
 # Import all your models so Alembic can detect them
 from core.database import Base

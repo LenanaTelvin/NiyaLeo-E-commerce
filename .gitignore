@@ -38,35 +38,71 @@ dist-ssr
 
 .vercel
 
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
 
-# App
-SECRET_KEY=ea8bdad051b596a50899df8e0b0ee771d05b9549c1110b93e883aa40b674aeef
-DEBUG=True
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
 
-# Database — replace with your actual PostgreSQL credentials
-DATABASE_URL=postgresql+asyncpg://commerce_user:commerce_pass@localhost:5432/commerce_db
+# Environment variables / secrets
+.env
+.env.*
+!.env.example
 
-# Redis
-REDIS_URL=redis://localhost:6379
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
 
-# JWT
-ACCESS_TOKEN_EXPIRE_MINUTES=30
-REFRESH_TOKEN_EXPIRE_DAYS=7
+# Testing / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.mypy_cache/
+.ruff_cache/
 
-# Stripe — use test keys from dashboard.stripe.com
-STRIPE_SECRET_KEY=sk_test_placeholder
-STRIPE_WEBHOOK_SECRET=whsec_placeholder
+# Logs
+*.log
+logs/
 
-# M-pesa - Daraja API sandbox credentials
-MPESA_CONSUMER_KEY=cdd9M1Xs0hmnAmVPtAFky85MyvjXOioPYZbiVxhPh0EoybqD
-MPESA_CONSUMER_SECRET=l8cI4nfbjMBL5iBlmkwN022ggozOlvscc6Oi1FWGWAiI1ShluOqm4PnWZwqFVtJA
-MPESA_SHORTCODE=174379
-MPESA_PASSKEY=bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919
-MPESA_ENV=sandbox
-MPESA_CALLBACK_URL=https://f4fb-41-90-233-19.ngrok-free.app/api/v1/payments/mpesa/callback
+# Database
+*.db
+*.sqlite3
+*.sqlite3-journal
 
-# AWS S3 (optional for now)
-#AWS_ACCESS_KEY_ID=placeholder
-#AWS_SECRET_ACCESS_KEY=placeholder
-#AWS_REGION=us-east-1
-S3_BUCKET_NAME=placeholder
+# Alembic (keep versions, ignore local overrides if any)
+# alembic/versions/*.pyc  (already covered by *.pyc above)
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# Redis dump
+dump.rdb
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Uploaded media (if stored locally rather than S3/cloud)
+uploads/
+media/
+
+# Docker
+.dockerignore
