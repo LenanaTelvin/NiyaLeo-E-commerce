@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { ShoppingCart, Minus, Plus, ChevronLeft } from 'lucide-react'
+import { ShoppingCart, Minus, Plus, ChevronLeft, Store } from 'lucide-react'
 import { toast } from 'sonner'
 import { useProduct } from '@/lib/hooks/useProducts'
 import { useCartStore } from '@/lib/store/cartStore'
@@ -129,6 +129,17 @@ export default function ProductDetailPage() {
             <p className="text-xs text-gray-400 mb-2">{product.category.name}</p>
           )}
           <h1 className="text-2xl font-semibold text-gray-900 mb-3">{product.name}</h1>
+          {product.seller && (
+            <Link
+              to={`/stores/${product.seller.store_slug}`}
+              className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 mb-4"
+            >
+              <div className="flex items-center gap-2 mb-4">
+                <Store className="w-5 h-5 text-gray-400" />
+                <span className="text-sm text-gray-500">{product.seller.store_name}</span>
+              </div>
+            </Link>
+          )}
 
           <div className="flex items-center gap-2 mb-4">
             <span className="text-2xl font-semibold text-gray-900">{formatPrice(effectivePrice)}</span>

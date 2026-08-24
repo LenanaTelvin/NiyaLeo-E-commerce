@@ -1,3 +1,4 @@
+// 'get' from zustand will be provided as the second argument to the store initializer
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 

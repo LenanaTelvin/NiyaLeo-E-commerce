@@ -8,7 +8,7 @@ import {
 import type { CartItem } from '@/types/cart'
 
 const formatPrice = (n: number) =>
-  new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n)
+  new Intl.NumberFormat('en-KE', { style: 'currency', currency: 'KES' }).format(n)
 
 export default function CartPage() {
   const { data: cart, isLoading, isError } = useCart()

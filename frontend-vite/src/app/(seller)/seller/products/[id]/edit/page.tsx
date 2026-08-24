@@ -1,76 +1,97 @@
-import { useState } from 'react'
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
-import { useCreateProduct } from '@/lib/hooks/useProducts'
+import { useMyProduct, useUpdateProduct } from '@/lib/hooks/useProducts'
 import { useCategories } from '@/lib/hooks/useCategories'
 
 const schema = z.object({
   name: z.string().min(2, 'Product name is required'),
-  slug: z.string().min(3, 'Slug must be at least 3 characters').regex(/^[a-z0-9-]+$/, 'Lowercase, numbers, hyphens only'),
   short_description: z.string().optional(),
   description: z.string().optional(),
   price: z.coerce.number().positive('Price must be greater than 0'),
   compare_price: z.coerce.number().optional(),
-  stock_quantity: z.coerce.number().int().min(0).default(0),
+  stock_quantity: z.coerce.number().int().min(0),
   category_id: z.coerce.number().optional(),
   is_featured: z.boolean().optional(),
-  image_url: z.string().url('Enter a valid URL').optional().or(z.literal('')),
 })
 
 type FormInput = z.input<typeof schema>
 type FormValues = z.output<typeof schema>
 
-const slugify = (s: string) =>
-  s.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-
-export default function NewProductPage() {
+export default function EditProductPage() {
+  const { id } = useParams<{ id: string }>()
+  const productId = id ? Number(id) : undefined
   const navigate = useNavigate()
-  const createProduct = useCreateProduct()
+
+  const { data: product, isLoading } = useMyProduct(productId)
   const { data: categories } = useCategories()
-  const [slugTouched, setSlugTouched] = useState(false)
+  const updateProduct = useUpdateProduct()
 
   const {
-    register, handleSubmit, watch, setValue,
+    register, handleSubmit, reset,
     formState: { errors, isSubmitting },
   } = useForm<FormInput, unknown, FormValues>({ resolver: zodResolver(schema) })
 
-  const name = watch('name')
-
-  const handleNameChange = (value: string) => {
-    setValue('name', value)
-    if (!slugTouched) setValue('slug', slugify(value))
-  }
+  // Populate the form once the product data arrives
+  useEffect(() => {
+    if (product) {
+      reset({
+        name: product.name,
+        short_description: product.short_description ?? '',
+        description: product.description ?? '',
+        price: product.price,
+        compare_price: product.compare_price ?? undefined,
+        stock_quantity: product.stock_quantity,
+        category_id: product.category?.id,
+        is_featured: product.is_featured,
+      })
+    }
+  }, [product, reset])
 
   const onSubmit = async (values: FormValues) => {
-    await createProduct.mutateAsync({
-      name: values.name,
-      slug: values.slug,
-      short_description: values.short_description,
-      description: values.description,
-      price: values.price,
-      compare_price: values.compare_price || undefined,
-      stock_quantity: values.stock_quantity,
-      category_id: values.category_id || undefined,
-      is_featured: values.is_featured,
-      images: values.image_url ? [{ url: values.image_url, is_primary: true }] : [],
+    if (!productId) return
+    await updateProduct.mutateAsync({
+      id: productId,
+      data: {
+        name: values.name,
+        short_description: values.short_description,
+        description: values.description,
+        price: values.price,
+        compare_price: values.compare_price || undefined,
+        stock_quantity: values.stock_quantity,
+        category_id: values.category_id || undefined,
+        is_featured: values.is_featured,
+      },
     })
     navigate('/seller/products')
   }
 
+  if (isLoading) {
+    return (
+      <div className="max-w-2xl mx-auto px-6 py-8">
+        <div className="h-96 bg-gray-100 rounded-xl animate-pulse" />
+      </div>
+    )
+  }
+
+  if (!product) {
+    return (
+      <div className="max-w-2xl mx-auto px-6 py-20 text-center">
+        <p className="text-gray-900 font-medium">Product not found</p>
+      </div>
+    )
+  }
+
   return (
     <div className="max-w-2xl mx-auto px-6 py-8">
-      <h1 className="text-2xl font-semibold text-gray-900 mb-6">Add product</h1>
+      <h1 className="text-2xl font-semibold text-gray-900 mb-6">Edit product</h1>
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
         <Field label="Product name" error={errors.name?.message}>
-          <input className="input" value={name ?? ''} onChange={e => handleNameChange(e.target.value)} />
-        </Field>
-
-        <Field label="URL slug" error={errors.slug?.message} hint="products/your-slug">
-          <input className="input" {...register('slug', { onChange: () => setSlugTouched(true) })} />
+          <input className="input" {...register('name')} />
         </Field>
 
         <Field label="Short description">
@@ -104,10 +125,6 @@ export default function NewProductPage() {
           </Field>
         </div>
 
-        <Field label="Image URL" error={errors.image_url?.message} hint="Paste a hosted image URL — file upload isn't set up yet">
-          <input className="input" {...register('image_url')} />
-        </Field>
-
         <label className="flex items-center gap-2 text-sm text-gray-700">
           <input type="checkbox" {...register('is_featured')} />
           Feature this product
@@ -119,14 +136,16 @@ export default function NewProductPage() {
           className="w-full bg-gray-900 text-white py-3 rounded-xl font-medium hover:bg-gray-800 transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
         >
           {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
-          {isSubmitting ? 'Creating…' : 'Create product'}
+          {isSubmitting ? 'Saving…' : 'Save changes'}
         </button>
       </form>
     </div>
   )
 }
 
-function Field({ label, error, hint, children }: { label: string; error?: string; hint?: string; children: React.ReactNode }) {
+function Field({
+  label, error, hint, children,
+}: { label: string; error?: string; hint?: string; children: React.ReactNode }) {
   return (
     <div>
       <label className="block text-sm font-medium text-gray-700 mb-1.5">{label}</label>

@@ -1,5 +1,6 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios'
 
+const AUTH_ENDPOINTS = ['/auth/login', '/auth/register', '/auth/refresh']
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 export const apiClient = axios.create({
@@ -19,7 +20,8 @@ apiClient.interceptors.response.use(
   res => res,
   async (error: AxiosError) => {
     const original = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
-    if (error.response?.status === 401 && !original._retry) {
+    const isAuthEndpoint = AUTH_ENDPOINTS.some(path => original.url?.includes(path))
+    if (error.response?.status === 401 && !original._retry && !isAuthEndpoint) {
       original._retry = true
       try {
         const refresh_token = localStorage.getItem('refresh_token')
